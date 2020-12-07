@@ -8,6 +8,12 @@ using code = vision::code;
 brain  Brain;
 
 // VEXcode device constructors
+motor LeftIntake = motor(PORT3, ratio18_1, false);
+motor RightIntake = motor(PORT4, ratio18_1, false);
+motor LeftMovement = motor(PORT1, ratio18_1, false);
+motor RightMovement = motor(PORT2, ratio18_1, false);
+rotation Gyro = rotation(PORT9, false);
+distance Sonar = distance(PORT10);
 
 // VEXcode generated functions
 

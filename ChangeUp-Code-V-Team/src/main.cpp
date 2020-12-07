@@ -10,9 +10,16 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
+// LeftIntake           motor         3               
+// RightIntake          motor         4               
+// LeftMovement         motor         1               
+// RightMovement        motor         2               
+// Gyro                 rotation      9               
+// Sonar                distance      10              
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
+#include <cmath>
 
 using namespace vex;
 
@@ -49,10 +56,60 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
+void turnDegrees(int degrees){
+  Gyro.setPosition(0, rotationUnits::deg);
+  int accuracy = 1;
+  int x = 100;
+  bool lessThan = true;
+  while (x != 0){
+    LeftMovement.setVelocity(x, velocityUnits::pct);
+    RightMovement.setVelocity(x, velocityUnits::pct);
+    while (Gyro.angle() < degrees == lessThan){
+      LeftMovement.spin(forward);
+      RightMovement.spin(reverse);
+    }
+    x /= -2;
+    lessThan = !lessThan;
+    if (abs(Gyro.angle() - degrees) < accuracy){
+      break;
+    }
+  }
+}
+
+void startMoving(){
+  LeftMovement.setVelocity(100, velocityUnits::pct);
+  RightMovement.setVelocity(100, velocityUnits::pct);
+  LeftMovement.spin(forward);
+  RightMovement.spin(forward);
+}
+
+void stopMoving() {
+  LeftMovement.setVelocity(0, velocityUnits::pct);
+  RightMovement.setVelocity(0, velocityUnits::pct);
+}
+
+void startIntake() {
+  LeftIntake.setVelocity(100, velocityUnits::pct);
+  RightIntake.setVelocity(100, velocityUnits::pct);
+  LeftIntake.spin(forward);
+  RightIntake.spin(forward);
+}
+
+void stopIntake() {
+  LeftIntake.setVelocity(0, velocityUnits::pct);
+  RightIntake.setVelocity(0, velocityUnits::pct);  
+}
+
 void autonomous(void) {
-  // ..........................................................................
-  // Insert autonomous user code here.
-  // ..........................................................................
+  turnDegrees(90);
+  while (Sonar.objectDistance(inches) > 2){
+    startMoving();
+  }
+  stopMoving();
+
+  startIntake();
+  wait(2, sec);
+  stopIntake();
 }
 
 /*---------------------------------------------------------------------------*/
