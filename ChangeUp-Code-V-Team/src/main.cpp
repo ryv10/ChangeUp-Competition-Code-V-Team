@@ -16,6 +16,7 @@
 // RightMovement        motor         2               
 // Gyro                 rotation      9               
 // Sonar                distance      10              
+// Controller1          controller                    
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
@@ -70,7 +71,7 @@ void turnDegrees(int degrees){
     }
     x /= -2;
     lessThan = !lessThan;
-    if (abs(Gyro.angle() - degrees) < accuracy){
+    if (std::abs(Gyro.angle() - degrees) < accuracy){
       break;
     }
   }
@@ -125,15 +126,18 @@ void autonomous(void) {
 void usercontrol(void) {
   // User control code here, inside the loop
   while (1) {
-    // This is the main execution loop for the user control program.
-    // Each time through the loop your program should update motor + servo
-    // values based on feedback from the joysticks.
-
-    // ........................................................................
-    // Insert user code here. This is where you use the joystick values to
-    // update your motors, etc.
-    // ........................................................................
-
+    RightMovement.spin(forward);
+    LeftMovement.spin(forward);
+    if (abs(Controller1.Axis1.value()) > 20 || abs(Controller1.Axis4.value()) > 20) {
+      double val = Controller1.Axis1.value() + Controller1.Axis4.value();
+      RightMovement.setVelocity(-val + 27, velocityUnits::pct);
+      LeftMovement.setVelocity(val + 27, velocityUnits::pct);
+    }
+    if (abs(Controller1.Axis2.value()) > 20 || abs(Controller1.Axis3.value()) > 20){
+      double val = Controller1.Axis2.value() + Controller1.Axis3.value();
+      RightMovement.setVelocity(val, velocityUnits::pct);
+      LeftMovement.setVelocity(val, velocityUnits::pct);
+    }
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
   }

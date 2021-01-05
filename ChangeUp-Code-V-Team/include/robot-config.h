@@ -9,6 +9,7 @@ extern motor LeftMovement;
 extern motor RightMovement;
 extern rotation Gyro;
 extern distance Sonar;
+extern controller Controller1;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.

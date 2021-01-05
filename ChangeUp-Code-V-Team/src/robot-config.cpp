@@ -14,10 +14,11 @@ motor LeftMovement = motor(PORT1, ratio18_1, false);
 motor RightMovement = motor(PORT2, ratio18_1, false);
 rotation Gyro = rotation(PORT9, false);
 distance Sonar = distance(PORT10);
+controller Controller1 = controller(primary);
 
 // VEXcode generated functions
-
-
+// define variable for remote controller enable/disable
+bool RemoteControlCodeEnabled = true;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
