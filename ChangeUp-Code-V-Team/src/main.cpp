@@ -8,9 +8,19 @@
 /*----------------------------------------------------------------------------*/
 
 // ---- START VEXCODE CONFIGURED DEVICES ----
+// Robot Configuration:
+// [Name]               [Type]        [Port(s)]
+// LeftIntake           motor         3               
+// RightIntake          motor         4               
+// LeftMovement         motor         1               
+// RightMovement        motor         2               
+// Gyro                 rotation      9               
+// Sonar                distance      10              
+// Controller1          controller                    
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
+#include <cmath>
 
 using namespace vex;
 
@@ -47,10 +57,60 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
+void turnDegrees(int degrees, double acc){
+  Gyro.setPosition(0, rotationUnits::deg);
+  double accuracy = acc;
+  double percentPower = 100;
+  bool lessThan = degrees < 0;
+  while (true){
+    LeftMovement.setVelocity(percentPower, velocityUnits::pct);
+    RightMovement.setVelocity(percentPower, velocityUnits::pct);
+    while ((Gyro.angle() < degrees) == lessThan){
+      LeftMovement.spin(forward);
+      RightMovement.spin(reverse);
+    }
+    percentPower /= -2;
+    lessThan = !lessThan;
+    if (std::abs(Gyro.angle() - degrees) < accuracy){
+      break;
+    }
+  }
+}
+
+void startMoving(){
+  LeftMovement.setVelocity(100, velocityUnits::pct);
+  RightMovement.setVelocity(100, velocityUnits::pct);
+  LeftMovement.spin(forward);
+  RightMovement.spin(forward);
+}
+
+void stopMoving() {
+  LeftMovement.setVelocity(0, velocityUnits::pct);
+  RightMovement.setVelocity(0, velocityUnits::pct);
+}
+
+void startIntake() {
+  LeftIntake.setVelocity(100, velocityUnits::pct);
+  RightIntake.setVelocity(100, velocityUnits::pct);
+  LeftIntake.spin(forward);
+  RightIntake.spin(forward);
+}
+
+void stopIntake() {
+  LeftIntake.setVelocity(0, velocityUnits::pct);
+  RightIntake.setVelocity(0, velocityUnits::pct);  
+}
+
 void autonomous(void) {
-  // ..........................................................................
-  // Insert autonomous user code here.
-  // ..........................................................................
+  turnDegrees(90, 1);
+  while (Sonar.objectDistance(inches) > 2){
+    startMoving();
+  }
+  stopMoving();
+
+  startIntake();
+  wait(2, sec);
+  stopIntake();
 }
 
 /*---------------------------------------------------------------------------*/
@@ -65,16 +125,19 @@ void autonomous(void) {
 
 void usercontrol(void) {
   // User control code here, inside the loop
-  while (1) {
-    // This is the main execution loop for the user control program.
-    // Each time through the loop your program should update motor + servo
-    // values based on feedback from the joysticks.
-
-    // ........................................................................
-    // Insert user code here. This is where you use the joystick values to
-    // update your motors, etc.
-    // ........................................................................
-
+  while (true) {
+    RightMovement.spin(forward);
+    LeftMovement.spin(forward);
+    if (abs(Controller1.Axis1.value()) > 20 || abs(Controller1.Axis4.value()) > 20) {
+      double val = Controller1.Axis1.value() + Controller1.Axis4.value();
+      RightMovement.setVelocity(-val + 27, velocityUnits::pct);
+      LeftMovement.setVelocity(val + 27, velocityUnits::pct);
+    }
+    if (abs(Controller1.Axis2.value()) > 20 || abs(Controller1.Axis3.value()) > 20){
+      double val = Controller1.Axis2.value() + Controller1.Axis3.value();
+      RightMovement.setVelocity(val, velocityUnits::pct);
+      LeftMovement.setVelocity(val, velocityUnits::pct);
+    }
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
   }
