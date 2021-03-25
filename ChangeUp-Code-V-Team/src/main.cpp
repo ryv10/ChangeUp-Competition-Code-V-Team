@@ -58,23 +58,7 @@ void pre_auton(void) {
 /*---------------------------------------------------------------------------*/
 
 void turnDegrees(int degrees, double acc){
-  Gyro.setPosition(0, rotationUnits::deg);
-  double accuracy = acc;
-  double percentPower = 100;
-  bool lessThan = degrees < 0;
-  while (true){
-    LeftMovement.setVelocity(percentPower, velocityUnits::pct);
-    RightMovement.setVelocity(percentPower, velocityUnits::pct);
-    while ((Gyro.angle() < degrees) == lessThan){
-      LeftMovement.spin(forward);
-      RightMovement.spin(reverse);
-    }
-    percentPower /= -2;
-    lessThan = !lessThan;
-    if (std::abs(Gyro.angle() - degrees) < accuracy){
-      break;
-    }
-  }
+  Gyro.setPosition(0, rotationUnits::deg); // Will start on Monday 3/29
 }
 
 void startMoving(){
