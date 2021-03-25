@@ -57,19 +57,19 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void turnDegrees(int degrees){
+void turnDegrees(int degrees, double acc){
   Gyro.setPosition(0, rotationUnits::deg);
-  int accuracy = 1;
-  int x = 100;
-  bool lessThan = true;
-  while (x != 0){
-    LeftMovement.setVelocity(x, velocityUnits::pct);
-    RightMovement.setVelocity(x, velocityUnits::pct);
-    while (Gyro.angle() < degrees == lessThan){
+  double accuracy = acc;
+  double percentPower = 100;
+  bool lessThan = degrees < 0;
+  while (true){
+    LeftMovement.setVelocity(percentPower, velocityUnits::pct);
+    RightMovement.setVelocity(percentPower, velocityUnits::pct);
+    while ((Gyro.angle() < degrees) == lessThan){
       LeftMovement.spin(forward);
       RightMovement.spin(reverse);
     }
-    x /= -2;
+    percentPower /= -2;
     lessThan = !lessThan;
     if (std::abs(Gyro.angle() - degrees) < accuracy){
       break;
@@ -102,7 +102,7 @@ void stopIntake() {
 }
 
 void autonomous(void) {
-  turnDegrees(90);
+  turnDegrees(90, 1);
   while (Sonar.objectDistance(inches) > 2){
     startMoving();
   }
@@ -125,7 +125,7 @@ void autonomous(void) {
 
 void usercontrol(void) {
   // User control code here, inside the loop
-  while (1) {
+  while (true) {
     RightMovement.spin(forward);
     LeftMovement.spin(forward);
     if (abs(Controller1.Axis1.value()) > 20 || abs(Controller1.Axis4.value()) > 20) {
