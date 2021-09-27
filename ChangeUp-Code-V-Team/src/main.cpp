@@ -57,8 +57,14 @@ void pre_auton(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void turnDegrees(int degrees, double acc){
-  Gyro.setPosition(0, rotationUnits::deg); // Will start on Monday 3/29
+void turnDegrees(int degrees){
+  Gyro.setPosition(0, rotationUnits::deg);
+  double a = ((60 * 45)/degrees) * (degrees/360) * (94.0002221066) * (1/50.2654824574);  // exact rpm to move in degrees/45 seconds
+  LeftMovement.setVelocity(a, velocityUnits::rpm);
+  RightMovement.setVelocity(a, velocityUnits::rpm);
+  RightMovement.spin(forward);
+  wait((degrees/45), sec);
+  RightMovement.setVelocity(0, velocityUnits::rpm);
 }
 
 void startMoving(){
@@ -68,25 +74,25 @@ void startMoving(){
   RightMovement.spin(forward);
 }
 
-void stopMoving() {
+void stopMoving(){
   LeftMovement.setVelocity(0, velocityUnits::pct);
   RightMovement.setVelocity(0, velocityUnits::pct);
 }
 
-void startIntake() {
+void startIntake(){
   LeftIntake.setVelocity(100, velocityUnits::pct);
   RightIntake.setVelocity(100, velocityUnits::pct);
   LeftIntake.spin(forward);
   RightIntake.spin(forward);
 }
 
-void stopIntake() {
+void stopIntake(){
   LeftIntake.setVelocity(0, velocityUnits::pct);
   RightIntake.setVelocity(0, velocityUnits::pct);  
 }
 
-void autonomous(void) {
-  turnDegrees(90, 1);
+void autonomous(void){
+  turnDegrees(90);
   while (Sonar.objectDistance(inches) > 2){
     startMoving();
   }
